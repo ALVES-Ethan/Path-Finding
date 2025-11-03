@@ -133,9 +133,9 @@ namespace pathfinding {
 		static Vector2I last_pos = { -1, -1 };
 
 		Vector2I position = player.getPosition();
-		int posIndex = buffer.getIndex(position);
-		if (posIndex >= 0 && posIndex < WIDTH * HEIGHT)
-			visited[posIndex]++;
+		int position_index = buffer.getIndex(position);
+		if (position_index >= 0 && position_index < WIDTH * HEIGHT)
+			visited[position_index]++;
 
 		auto in_bounds_and_free = [&](const Vector2I& p) -> bool {
 			if (p.getX() < 0 || p.getX() >= WIDTH || p.getY() < 0 || p.getY() >= HEIGHT)
@@ -146,7 +146,7 @@ namespace pathfinding {
 
 		auto manhattan = [&](const Vector2I& a, const Vector2I& b) -> int {
 			return std::abs(a.getX() - b.getX()) + std::abs(a.getY() - b.getY());
-		};
+			};
 
 		const std::vector<Vector2I> dirs = { {1,0}, {-1,0}, {0,1}, {0,-1} };
 		const int VISIT_WEIGHT = 100; // poids pour privilégier cellules peu visitées
@@ -160,7 +160,7 @@ namespace pathfinding {
 			if (np == last_pos) continue; // éviter de revenir immédiatement si on a d'autres options
 
 			int idx = buffer.getIndex(np);
-			int visits = (idx >= 0 && idx < WIDTH * HEIGHT) ? visited[idx] : INT_MAX/2;
+			int visits = (idx >= 0 && idx < WIDTH * HEIGHT) ? visited[idx] : INT_MAX / 2;
 			int score = visits * VISIT_WEIGHT + manhattan(np, goal);
 
 			if (score < best_score) {
@@ -184,7 +184,7 @@ namespace pathfinding {
 			if (!in_bounds_and_free(np)) continue;
 
 			int idx = buffer.getIndex(np);
-			int visits = (idx >= 0 && idx < WIDTH * HEIGHT) ? visited[idx] : INT_MAX/2;
+			int visits = (idx >= 0 && idx < WIDTH * HEIGHT) ? visited[idx] : INT_MAX / 2;
 			int score = visits * VISIT_WEIGHT + manhattan(np, goal);
 
 			if (score < best_score) {
@@ -240,30 +240,30 @@ int main() {
 
 	HIDE_CURSOR
 
-		while (true) {
-			pathfinding::almost_no_gambling_algorithm(player, buffer, goal);
+	while (true) {
+		pathfinding::almost_no_gambling_algorithm(player, buffer, goal);
 
-			if (player.getPosition() == goal)
-				generateRandomGoal(&buffer, goal);
+		if (player.getPosition() == goal)
+			generateRandomGoal(&buffer, goal);
 
-			Vector2I input = handleInputs();
-			if (input.getX() != 0 || input.getY() != 0) {
-				buffer.setValue(goal, '.');
+		Vector2I input = handleInputs();
+		if (input.getX() != 0 || input.getY() != 0) {
+			buffer.setValue(goal, '.');
 
-				goal += input;
+			goal += input;
 
-				if (goal.getX() < 0) goal.setX(0);
-				if (goal.getX() >= WIDTH) goal.setX(WIDTH - 1);
-				if (goal.getY() < 0) goal.setY(0);
-				if (goal.getY() >= HEIGHT) goal.setY(HEIGHT - 1);
+			if (goal.getX() < 0) goal.setX(0);
+			if (goal.getX() >= WIDTH) goal.setX(WIDTH - 1);
+			if (goal.getY() < 0) goal.setY(0);
+			if (goal.getY() >= HEIGHT) goal.setY(HEIGHT - 1);
 
-				buffer.setValue(goal, 'X');
-			}
-
-			buffer.draw();
-
-			sleep(2);
+			buffer.setValue(goal, 'X');
 		}
+
+		buffer.draw();
+
+		sleep(2);
+	}
 
 	return 0;
 }

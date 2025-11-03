@@ -1,25 +1,9 @@
 #pragma once
 
-#include <algorithm>
-
 #define oss "\033[38;5;"
+int rgbToAnsi(int r, int g, int b);
 
-inline int rgbToAnsi(int r, int g, int b) {
-    r = std::max(0, std::min(255, r));
-    g = std::max(0, std::min(255, g));
-    b = std::max(0, std::min(255, b));
-
-    // Convert RGB to ANSI 256 color mode
-    // pour correctement formuler penser a rajoute un nouveau define j'appele oss = #define oss "\033[38;5;" puis mettre la fonction et finir avec m tres important
-    // Formula: 16 + 36 * R + 6 * G + B
-    int ansiCode = 16 + (36 * (r / 51)) + (6 * (g / 51)) + (b / 51);
-    return ansiCode;
-}
-
-//For custom colors (rgb)
-#define oss "\033[38;5;"
-
-//unit SPECIAL,
+// FOREGROUND
 #define BLACK "\033[30m"
 #define RED "\033[31m"
 #define GREEN "\033[32m"
@@ -32,7 +16,7 @@ inline int rgbToAnsi(int r, int g, int b) {
 #define ORANGE "\033[38;5;214m"
 #define DEFAULT "\033[39m"
 
-//BACKROUND
+// BACKROUND
 #define BBLACK "\033[40m"
 #define BRED "\033[41m"
 #define BGREEN "\033[42m"
@@ -41,13 +25,11 @@ inline int rgbToAnsi(int r, int g, int b) {
 #define BMAGENTA "\033[45m"
 #define BCYAN "\033[46m"
 #define BWHITE "\033[47m"
-
 #define BBROWN "\033[48;5;94m"
 #define BORANGE "\033[48;5;214m"
-
 #define BDEFAULT "\033[49m"
 
-//SHINY/BRIGHT
+// SHINY/BRIGHT
 #define SBLACK "\033[90m"
 #define SRED "\033[91m"
 #define SGREEN "\033[92m"
@@ -58,7 +40,7 @@ inline int rgbToAnsi(int r, int g, int b) {
 #define SWHITE "\033[97m"
 #define SDEFAULT "\033[99m"
 
-//SHINY/BRIGHT BACKGROUND
+// SHINY/BRIGHT BACKGROUND
 #define SBBLACK "\033[100m"
 #define SBRED "\033[101m"
 #define SBGREEN "\033[102m"
@@ -69,7 +51,7 @@ inline int rgbToAnsi(int r, int g, int b) {
 #define SBWHITE "\033[107m"
 #define SBDEFAULT "\033[109m"
 
-//EFFECT
+// EFFECTS
 #define BOLDON "\033[1m"
 #define BOLDOFF "\033[21m"
 #define DIMON "\033[2m"

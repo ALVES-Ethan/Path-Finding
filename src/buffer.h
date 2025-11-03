@@ -1,6 +1,6 @@
 #pragma once
 
-#include "maths.h"
+#include "utils/maths.h"
 
 #define DEFAULT_BUFFER_WIDTH	16
 #define DEFAULT_BUFFER_HEIGHT	16

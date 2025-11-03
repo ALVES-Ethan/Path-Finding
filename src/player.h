@@ -1,6 +1,6 @@
 #pragma once
 
-#include "maths.h"
+#include "utils/maths.h"
 
 class Buffer;
 

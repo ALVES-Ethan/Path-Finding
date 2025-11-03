@@ -1,6 +1,6 @@
 #include "buffer.h"
 
-#include "colors.h"
+#include "utils/colors.h"
 
 #include <iostream>
 #include <string>
