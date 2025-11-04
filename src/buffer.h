@@ -18,8 +18,8 @@ public:
 	int getIndex(const Vector2I& _position) const;
 	const Vector2I& getSize() const;
 
-	void fill(char _char);
-	void draw() const;
+	void clear(char _char = '.');
+	void present() const;
 
 private:
 	Vector2I m_size;

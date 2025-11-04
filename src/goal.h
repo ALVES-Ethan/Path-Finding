@@ -6,11 +6,11 @@
 
 class Buffer;
 
-#define DEFAULT_PLAYER_POSITION	Vector2I(0, 0)
+#define DEFAULT_GOAL_POSITION Vector2I(0, 0)
 
-class Player : public Drawable {
+class Goal : public Drawable {
 public:
-	Player(Buffer& _buffer, const Vector2I& _position = DEFAULT_PLAYER_POSITION);
+	Goal(Buffer& _buffer, const Vector2I& _position = DEFAULT_GOAL_POSITION);
 
 	void setPosition(const Vector2I& _position);
 

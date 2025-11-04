@@ -1,5 +1,7 @@
 #include "maths.h"
 
+#include <cmath>
+
 template<typename T>
 inline Vector2<T>::Vector2(const T& _x, const T& _y) : m_x(_x), m_y(_y) {
 }
@@ -25,8 +27,23 @@ inline void Vector2<T>::setY(const T& _y) {
 }
 
 template<typename T>
+inline T Vector2<T>::magnitude() const {
+	return static_cast<T>(std::sqrt(static_cast<double>(m_x * m_x + m_y * m_y))); // TEMPORARY
+}
+
+template<typename T>
+inline T Vector2<T>::magnitudeSquared() const {
+	return m_x * m_x + m_y * m_y;
+}
+
+template<typename T>
 inline Vector2<T> Vector2<T>::operator+(const Vector2<T>& _other) const {
 	return Vector2<T>(m_x + _other.m_x, m_y + _other.m_y);
+}
+
+template<typename T>
+inline Vector2<T> Vector2<T>::operator-(const Vector2<T>& _other) const {
+	return Vector2<T>(m_x - _other.m_x, m_y - _other.m_y);
 }
 
 template<typename T>
@@ -38,4 +55,9 @@ inline void Vector2<T>::operator+=(const Vector2<T>& _other) {
 template<typename T>
 inline bool Vector2<T>::operator==(const Vector2<T>& _other) const {
 	return (m_x == _other.m_x) && (m_y == _other.m_y);
+}
+
+template<typename T>
+inline bool Vector2<T>::operator!=(const Vector2<T>& _other) const {
+	return !(*this == _other);
 }

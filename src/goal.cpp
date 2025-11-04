@@ -1,14 +1,14 @@
-#include "player.h"
+#include "goal.h"
 
 #include "buffer.h"
 
 #include <algorithm>
 
-Player::Player(Buffer& _buffer, const Vector2I& _position) : Drawable(_buffer) {
+Goal::Goal(Buffer& _buffer, const Vector2I& _position) : Drawable(_buffer) {
 	setPosition(_position);
 }
 
-void Player::setPosition(const Vector2I& _position) {
+void Goal::setPosition(const Vector2I& _position) {
 	m_buffer->setValue(m_position, '.');
 
 	m_position = _position;
@@ -17,10 +17,10 @@ void Player::setPosition(const Vector2I& _position) {
 	m_position.setX(std::max(0, std::min(size.getX() - 1, m_position.getX())));
 	m_position.setY(std::max(0, std::min(size.getY() - 1, m_position.getY())));
 
-	m_buffer->setValue(m_position, 'O');
+	m_buffer->setValue(m_position, 'X');
 }
 
-void Player::move(const Vector2I& _delta) {
+void Goal::move(const Vector2I& _delta) {
 	m_buffer->setValue(m_position, '.');
 
 	m_position += _delta;
@@ -29,13 +29,13 @@ void Player::move(const Vector2I& _delta) {
 	m_position.setX(std::max(0, std::min(size.getX() - 1, m_position.getX())));
 	m_position.setY(std::max(0, std::min(size.getY() - 1, m_position.getY())));
 
-	m_buffer->setValue(m_position, 'O');
+	m_buffer->setValue(m_position, 'X');
 }
 
-const Vector2I& Player::getPosition() const {
+const Vector2I& Goal::getPosition() const {
 	return m_position;
 }
 
-void Player::draw() const {
-	m_buffer->setValue(m_position, 'O');
+void Goal::draw() const {
+	m_buffer->setValue(m_position, 'X');
 }

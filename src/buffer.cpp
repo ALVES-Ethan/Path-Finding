@@ -46,13 +46,12 @@ const Vector2I& Buffer::getSize() const {
 	return m_size;
 }
 
-void Buffer::fill(char _char) {
+void Buffer::clear(char _char) {
 	const int total = m_size.getX() * m_size.getY();
 	std::fill_n(m_data, total, _char);
 }
 
-void Buffer::draw() const {
-
+void Buffer::present() const {
 
 	int width = m_size.getX();
 	int height = m_size.getY();
@@ -118,6 +117,9 @@ void Buffer::draw() const {
 				break;
 			case 'X':
 				out += BYELLOW;
+				break;
+			case 'Z':
+				out += BMAGENTA;
 				break;
 			default:
 				out += BDEFAULT;
