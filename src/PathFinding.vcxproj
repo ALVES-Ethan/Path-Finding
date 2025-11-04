@@ -19,20 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\buffer.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\player.cpp" />
-    <ClCompile Include="src\utils\colors.cpp" />
-    <ClCompile Include="src\utils\maths.cpp" />
+    <ClCompile Include="buffer.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="utils\colors.cpp" />
+    <ClCompile Include="utils\maths.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\buffer.h" />
-    <ClInclude Include="src\player.h" />
-    <ClInclude Include="src\utils\colors.h" />
-    <ClInclude Include="src\utils\maths.h" />
+    <ClInclude Include="buffer.h" />
+    <ClInclude Include="player.h" />
+    <ClInclude Include="utils\colors.h" />
+    <ClInclude Include="utils\maths.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\utils\maths.inl" />
+    <None Include="utils\maths.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
