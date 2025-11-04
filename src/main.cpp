@@ -1,5 +1,5 @@
-#define WIDTH	32
-#define HEIGHT	32
+#define WIDTH	16
+#define HEIGHT	16
 
 #include "buffer.h"
 #include "player.h"
