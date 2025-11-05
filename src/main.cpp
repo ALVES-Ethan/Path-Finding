@@ -13,22 +13,15 @@
 
 #include <array>
 #include <vector>
+#include <queue>
+
+#define NOMINMAX
+#include <Windows.h>
+
+#include <iostream>
 
 void sleep(int milliseconds) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
-}
-void generateRandomGoal(Buffer* buffer, Vector2I& goal) {
-	buffer->setValue(goal, '.');
-
-	Vector2I generated_pos = { rand() % WIDTH, rand() % HEIGHT };
-
-	while (buffer->getValue(generated_pos) == 'P') {
-		generated_pos = { rand() % WIDTH, rand() % HEIGHT };
-	}
-
-	goal = generated_pos;
-
-	buffer->setValue(goal, 'X');
 }
 Vector2I handleInputs() {
 	if (_kbhit()) {
@@ -51,24 +44,15 @@ Vector2I handleInputs() {
 	return { 0, 0 };
 }
 
-#define NOMINMAX
-#include <Windows.h>
-
-#include <iostream>
-#include <vector>
-
 #define HIDE_CURSOR std::cout<<"\033[?25l";
 #define SHOW_CURSOR std::cout<<"\033[?25h";
 
 namespace pathfinding {
-	Path basic_algorithm(Player& player, Buffer& buffer, Goal& goal) {
-		
+	void basic_algorithm(Path& path, const Player& player, const Buffer& buffer, const Goal& goal) {
 		Vector2I goal_position = goal.getPosition();
 		Vector2I player_position = player.getPosition();
 		
 		Vector2I current_position = player_position;
-
-		Path path(buffer);
 
 		while (current_position != goal_position) {
 			
@@ -84,16 +68,12 @@ namespace pathfinding {
 			}
 			path.addPoint(current_position);
 		}
-
-		return path;
 	}
-	Path advanced_algorithm(Player& player, Buffer& buffer, Goal& goal) {
+	void first_depth_search(Path& path, const Player& player, const Buffer& buffer, const Goal& goal) {
 		Vector2I goal_position = goal.getPosition();
 		Vector2I player_position = player.getPosition();
 
 		Vector2I current_position = player_position;
-
-		Path path(buffer);
 
 		std::array<float, 16 * 16> score_container;
 		score_container.fill(std::numeric_limits<float>::max());
@@ -116,7 +96,7 @@ namespace pathfinding {
 			current_position = buffer.getPosition(best_index);
 
 			// remove used score
-			score_container[best_index] = std::numeric_limits<float>::max();
+			score_container[best_index] = (std::numeric_limits<float>::max());
 
 			// mark it as visited
 			visited_container[best_index] = true;
@@ -146,8 +126,82 @@ namespace pathfinding {
 
 			path.addPoint(current_position);
 		}
+	}
+	void a_star_algorithm(Path& path, const Player& player, const Buffer& buffer, const Goal& goal) {
+		Vector2I goal_position = goal.getPosition();
+		Vector2I player_position = player.getPosition();
+		
+		std::vector<Point> grid;
+		grid.reserve(WIDTH * HEIGHT);
+		grid.resize(WIDTH * HEIGHT);
+		
+		for (int y = 0; y < HEIGHT; y++) {
+			for (int x = 0; x < WIDTH; x++) {
+				int index = y * WIDTH + x;
+				grid[index].position = { x, y };
+				grid[index].index = index;
+				grid[index].visited = false;
+				grid[index].dist_to_player = std::numeric_limits<int>::max();
+				grid[index].from = nullptr;
+			}
+		}
 
-		return path;
+		std::priority_queue<Point*, std::vector<Point*>, std::greater<Point*>> queue;
+
+		queue.push(&grid[buffer.getIndex(player_position)]);
+
+		while (!queue.empty()) {
+			Point* current_point = queue.top();
+			queue.pop();
+
+			if (current_point->visited)
+				continue;
+
+			// compute distance to goal
+			float dist_to_goal = (current_point->position - goal_position).magnitudeSquared();
+			current_point->dist_to_player = dist_to_goal;
+
+
+			current_point->visited = true;
+
+			if(current_point->position == goal_position) {
+				std::vector<Vector2I> path_points;
+				Point* point = current_point;
+				while (point != nullptr) {
+					path_points.push_back(point->position);
+					point = point->from;
+				}
+
+				std::reverse(path_points.begin(), path_points.end());
+
+				for (const Vector2I& point : path_points)
+					path.addPoint(point);
+
+				return;
+			}
+
+			Vector2I directions[4] = { {1, 0}, {-1, 0}, {0, 1}, {0, -1} };
+
+			for (const Vector2I& direction : directions) {
+				Vector2I neighbor_position = current_point->position + direction;
+				int neighbor_index = buffer.getIndex(neighbor_position);
+
+				if (neighbor_index == -1)
+					continue;
+
+				if (buffer.getValue(neighbor_position) != '.' ||
+					buffer.getValue(neighbor_position) == 'X')
+					continue;
+
+				if (grid[neighbor_index].visited)
+					continue;
+
+				Point* neighbor = &grid[neighbor_index];
+				neighbor->dist_to_player = (neighbor->position - goal_position).magnitudeSquared();
+				neighbor->from = current_point;
+				queue.push(neighbor);	
+			}
+		}
 	}
 }
 
@@ -157,7 +211,9 @@ int main() {
 	Player player(buffer);
 	Goal goal(buffer, { WIDTH - 1, HEIGHT - 1 });
 
-	Path path = pathfinding::advanced_algorithm(player, buffer, goal);
+	Path path(buffer);
+
+	pathfinding::a_star_algorithm(path, player, buffer, goal);
 
 
 	HIDE_CURSOR
@@ -186,7 +242,8 @@ int main() {
 		Vector2I input = handleInputs();
 		if(input != Vector2I::zero) {
 			goal.move(input);
-			path = pathfinding::advanced_algorithm(player, buffer, goal);
+			path.clearPoints();
+			pathfinding::a_star_algorithm(path, player, buffer, goal);
 		}
 
 		player.setPosition(player.getPosition());
