@@ -35,6 +35,18 @@ void Buffer::setValue(const Vector2I& _position, char _char) {
 	m_data[_position.getY() * m_size.getX() + _position.getX()] = _char;
 }
 
+const Vector2I& Buffer::getPosition(int _index) const {
+	static Vector2I position;
+	if(_index < 0 || _index >= m_size.getX() * m_size.getY()) {
+		position = { -1, -1 };
+		return position;
+	}
+	int x = _index % m_size.getX();
+	int y = _index / m_size.getX();
+	position = { x, y };
+	return position;
+}
+
 int Buffer::getIndex(const Vector2I& _position) const {
 	if(_position.getX() < 0 || _position.getX() >= m_size.getX() || _position.getY() < 0 || _position.getY() >= m_size.getY()) {
 		return -1;

@@ -15,6 +15,7 @@ public:
 	char getValue(const Vector2I& _position) const;
 	void setValue(const Vector2I& _position, char _char);
 
+	const Vector2I& getPosition(int _index) const;
 	int getIndex(const Vector2I& _position) const;
 	const Vector2I& getSize() const;
 

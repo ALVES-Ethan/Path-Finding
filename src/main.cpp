@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <conio.h>
 
+#include <array>
+#include <vector>
+
 void sleep(int milliseconds) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
@@ -92,49 +95,56 @@ namespace pathfinding {
 
 		Path path(buffer);
 
-		std::vector<int> score_container;
+		std::array<float, 16 * 16> score_container;
+		score_container.fill(std::numeric_limits<float>::max());
+		std::array<bool, 16 * 16> visited_container;
+		visited_container.fill(false);
 
+		score_container[buffer.getIndex(current_position)] = (current_position - goal_position).magnitudeSquared();
+		
 		while (current_position != goal_position) {
-			// check wich cells are clear arround us
-			std::vector<Vector2I> clear_cells;
-
-			if(buffer.getValue(current_position + Vector2I{1, 0}) == '.') {
-				clear_cells.push_back(current_position + Vector2I{1, 0});
-			}
-			if(buffer.getValue(current_position + Vector2I{-1, 0}) == '.') {
-				clear_cells.push_back(current_position + Vector2I{-1, 0});
-			}
-			if(buffer.getValue(current_position + Vector2I{0, 1}) == '.') {
-				clear_cells.push_back(current_position + Vector2I{0, 1});
-			}
-			if(buffer.getValue(current_position + Vector2I{0, -1}) == '.') {
-				clear_cells.push_back(current_position + Vector2I{0, -1});
-			}
-
-			// choose the cell that is closest to the goal
-			Vector2I best_cell = current_position;
-			int best_distance = INT_MAX;
-			for(const Vector2I& cell : clear_cells) {
-				int distance = (cell - goal_position).magnitudeSquared();
-				if(distance < best_distance) {
-					best_distance = distance;
-					best_cell = cell;
+			float best_score = std::numeric_limits<float>::max();
+			int best_index = -1;
+			for (int i = 0; i < score_container.size(); i++) {
+				if (!visited_container[i] && score_container[i] < best_score) {
+					best_score = score_container[i];
+					best_index = i;
 				}
 			}
 
-			// if stuck, break
-			if(best_cell == current_position) {
-				__debugbreak();
+			// move to best cell
+			current_position = buffer.getPosition(best_index);
+
+			// remove used score
+			score_container[best_index] = std::numeric_limits<float>::max();
+
+			// mark it as visited
+			visited_container[best_index] = true;
+
+			// check wich cells are clear arround us
+			std::vector<Vector2I> clear_cells;
+
+			if(buffer.getValue(current_position + Vector2I{1, 0}) == '.' || buffer.getValue(current_position + Vector2I{ 1, 0 }) == 'X') {
+				clear_cells.push_back(current_position + Vector2I{1, 0});
+			}
+			if(buffer.getValue(current_position + Vector2I{-1, 0}) == '.' || buffer.getValue(current_position + Vector2I{ -1, 0 }) == 'X') {
+				clear_cells.push_back(current_position + Vector2I{-1, 0});
+			}
+			if(buffer.getValue(current_position + Vector2I{0, 1}) == '.' || buffer.getValue(current_position + Vector2I{ 0, 1 }) == 'X') {
+				clear_cells.push_back(current_position + Vector2I{0, 1});
+			}
+			if(buffer.getValue(current_position + Vector2I{0, -1}) == '.' || buffer.getValue(current_position + Vector2I{ 0, -1 }) == 'X') {
+				clear_cells.push_back(current_position + Vector2I{0, -1});
 			}
 
-			// if already visited, break
-			if(std::find(visited_positions.begin(), visited_positions.end(), best_cell) != visited_positions.end()) {
-				__debugbreak();
+			// add cells to container
+			for (Vector2I& cell : clear_cells) {
+				float magnitude_squared = (cell - goal_position).magnitudeSquared();
+				int cell_index = buffer.getIndex(cell);
+				score_container[cell_index] = magnitude_squared;
 			}
 
-			// move to the best cell
-			current_position = best_cell;
-			visited_positions.push_back(current_position);
+			path.addPoint(current_position);
 		}
 
 		return path;
@@ -149,10 +159,29 @@ int main() {
 
 	Path path = pathfinding::advanced_algorithm(player, buffer, goal);
 
+
 	HIDE_CURSOR
 
 	while (true) {
 		buffer.clear();
+
+		// add obstacles
+		buffer.setValue({ 5, 5 }, 'P');
+		buffer.setValue({ 5, 6 }, 'P');
+		buffer.setValue({ 5, 7 }, 'P');
+		buffer.setValue({ 5, 8 }, 'P');
+
+		buffer.setValue({ 10, 3 }, 'P');
+		buffer.setValue({ 10, 4 }, 'P');
+		buffer.setValue({ 10, 5 }, 'P');
+
+		buffer.setValue({ 8, 5 }, 'P');
+		buffer.setValue({ 9, 5 }, 'P');
+		buffer.setValue({ 10, 5 }, 'P');
+
+		buffer.setValue({ 10, 12 }, 'P');
+		buffer.setValue({ 10, 13 }, 'P');
+		buffer.setValue({ 10, 16 }, 'P');
 
 		Vector2I input = handleInputs();
 		if(input != Vector2I::zero) {
