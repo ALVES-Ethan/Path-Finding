@@ -80,7 +80,7 @@ namespace pathfinding {
 		std::array<bool, 16 * 16> visited_container;
 		visited_container.fill(false);
 
-		score_container[buffer.getIndex(current_position)] = (current_position - goal_position).magnitudeSquared();
+		score_container[buffer.getIndex(current_position)] = (current_position - goal_position).magnitude(true);
 		
 		while (current_position != goal_position) {
 			float best_score = std::numeric_limits<float>::max();
@@ -119,7 +119,7 @@ namespace pathfinding {
 
 			// add cells to container
 			for (Vector2I& cell : clear_cells) {
-				float magnitude_squared = (cell - goal_position).magnitudeSquared();
+				float magnitude_squared = (cell - goal_position).magnitude(true);
 				int cell_index = buffer.getIndex(cell);
 				score_container[cell_index] = magnitude_squared;
 			}
@@ -146,9 +146,12 @@ namespace pathfinding {
 			}
 		}
 
-		std::priority_queue<Point*, std::vector<Point*>, std::greater<Point*>> queue;
+		std::priority_queue<Point*, std::vector<Point*>, PointComparator> queue;
 
+		grid[buffer.getIndex(player_position)].dist_to_goal = player_position.manhattan(goal_position);
+		grid[buffer.getIndex(player_position)].dist_to_player = 0;
 		queue.push(&grid[buffer.getIndex(player_position)]);
+
 
 		while (!queue.empty()) {
 			Point* current_point = queue.top();
@@ -157,10 +160,13 @@ namespace pathfinding {
 			if (current_point->visited)
 				continue;
 
-			// compute distance to goal
-			float dist_to_goal = (current_point->position - goal_position).magnitudeSquared();
-			current_point->dist_to_player = dist_to_goal;
+			float dist_to_player = (current_point->position - player_position).magnitude(true);
+			current_point->dist_to_player = dist_to_player;
+			if(current_point->from != nullptr)
+				current_point->from->dist_to_player = dist_to_player + 1;
 
+			float dist_to_goal = current_point->position.manhattan(goal_position);
+			current_point->dist_to_goal = dist_to_goal;
 
 			current_point->visited = true;
 
@@ -197,9 +203,11 @@ namespace pathfinding {
 					continue;
 
 				Point* neighbor = &grid[neighbor_index];
-				neighbor->dist_to_player = (neighbor->position - goal_position).magnitudeSquared();
+				neighbor->dist_to_player = (neighbor->position - player_position).magnitude(true);
+				neighbor->dist_to_goal = neighbor->position.manhattan(goal_position);
 				neighbor->from = current_point;
-				queue.push(neighbor);	
+
+				queue.push(neighbor);
 			}
 		}
 	}
@@ -209,35 +217,37 @@ int main() {
 	Buffer buffer({ WIDTH, HEIGHT });
 
 	Player player(buffer);
+	player.setPosition({ 8, 8 });
+
 	Goal goal(buffer, { WIDTH - 1, HEIGHT - 1 });
 
 	Path path(buffer);
 
 	pathfinding::a_star_algorithm(path, player, buffer, goal);
 
+	std::vector<Vector2I> obstacles;
+	for (int i = 0; i < (WIDTH * HEIGHT) / 8; i++) {
+		Vector2I obstacle_position;
+		do {
+			obstacle_position = Vector2I(rand() % WIDTH, rand() % HEIGHT);
+		} while (obstacle_position == player.getPosition() || obstacle_position == goal.getPosition() ||
+			buffer.getValue(obstacle_position) == 'X');
+		obstacles.push_back(obstacle_position);
+		buffer.setValue(obstacle_position, 'X');
+	}
 
 	HIDE_CURSOR
+
+	buffer.present();
+
+	std::cout << "Press WASD to move the goal\n";
 
 	while (true) {
 		buffer.clear();
 
-		// add obstacles
-		buffer.setValue({ 5, 5 }, 'P');
-		buffer.setValue({ 5, 6 }, 'P');
-		buffer.setValue({ 5, 7 }, 'P');
-		buffer.setValue({ 5, 8 }, 'P');
-
-		buffer.setValue({ 10, 3 }, 'P');
-		buffer.setValue({ 10, 4 }, 'P');
-		buffer.setValue({ 10, 5 }, 'P');
-
-		buffer.setValue({ 8, 5 }, 'P');
-		buffer.setValue({ 9, 5 }, 'P');
-		buffer.setValue({ 10, 5 }, 'P');
-
-		buffer.setValue({ 10, 12 }, 'P');
-		buffer.setValue({ 10, 13 }, 'P');
-		buffer.setValue({ 10, 16 }, 'P');
+		for (const Vector2I& obstacle : obstacles) {
+			buffer.setValue(obstacle, 'P');
+		}
 
 		Vector2I input = handleInputs();
 		if(input != Vector2I::zero) {

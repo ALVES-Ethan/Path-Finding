@@ -27,13 +27,16 @@ inline void Vector2<T>::setY(const T& _y) {
 }
 
 template<typename T>
-inline T Vector2<T>::magnitude() const {
-	return static_cast<T>(std::sqrt(static_cast<double>(m_x * m_x + m_y * m_y))); // TEMPORARY
+inline T Vector2<T>::manhattan(const Vector2<T>& _other) const {
+	return std::abs(m_x - _other.m_x) + std::abs(m_y - _other.m_y);
 }
 
 template<typename T>
-inline T Vector2<T>::magnitudeSquared() const {
-	return m_x * m_x + m_y * m_y;
+inline T Vector2<T>::magnitude(bool _squared) const {
+	if(_squared)
+		return m_x * m_x + m_y * m_y;
+	else
+		return static_cast<T>(std::sqrt(static_cast<double>(m_x * m_x + m_y * m_y))); // TEMPORARY
 }
 
 template<typename T>

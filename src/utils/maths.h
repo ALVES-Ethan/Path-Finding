@@ -11,8 +11,8 @@ public:
 	void setX(const T& _x);
 	void setY(const T& _y);
 
-	T magnitude() const;
-	T magnitudeSquared() const;
+	T manhattan(const Vector2<T>& _other) const;
+	T magnitude(bool _squared = true) const;
 
 	Vector2<T> operator+(const Vector2<T>& _other) const;
 	Vector2<T> operator-(const Vector2<T>& _other) const;
