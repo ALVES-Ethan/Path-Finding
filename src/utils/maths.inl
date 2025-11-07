@@ -64,3 +64,13 @@ template<typename T>
 inline bool Vector2<T>::operator!=(const Vector2<T>& _other) const {
 	return !(*this == _other);
 }
+
+template<typename T>
+inline bool Vector2<T>::operator<(const Vector2<T>& _other) const {
+	return magnitude(true) < _other.magnitude(true);
+}
+
+template<typename T>
+inline bool Vector2<T>::operator>(const Vector2<T>& _other) const {
+	return magnitude(true) > _other.magnitude(true);
+}

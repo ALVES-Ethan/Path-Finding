@@ -22,6 +22,9 @@ public:
 	bool operator==(const Vector2<T>& _other) const;
 	bool operator!=(const Vector2<T>& _other) const;
 
+	bool operator<(const Vector2<T>& _other) const;
+	bool operator>(const Vector2<T>& _other) const;
+
 	static Vector2<T> zero;
 	static Vector2<T> one;
 private:

@@ -63,7 +63,43 @@ void Buffer::clear(char _char) {
 	std::fill_n(m_data, total, _char);
 }
 
-void Buffer::present() const {
+void Buffer::present(bool _flush) const {
+	if(_flush) {
+		std::cout << "\033[2J"; // Clear screen
+		std::cout << "\033[H";  // Move cursor to home position
+
+		// redraw entire buffer
+		for (int y = 0; y < m_size.getY(); y++) {
+			for (int x = 0; x < m_size.getX(); x++) {
+				const int idx = y * m_size.getX() + x;
+				const char newC = m_data[idx];
+				switch (newC) {
+				case '.': // empty cell
+					std::cout << BGREEN << "  ";
+					break;
+				case 'O': // player cell
+					std::cout << BBLUE << "  ";
+					break;
+				case 'P': // obstacle cell
+					std::cout << BRED << "  ";
+					break;
+				case 'X': // goal cell
+					std::cout << BYELLOW << "  ";
+					break;
+				case 'Z': // path cell
+					std::cout << BMAGENTA << "  ";
+					break;
+				case 'W': // visited cell
+					std::cout << BCYAN << "  ";
+					break;
+				default:
+					std::cout << BDEFAULT << "  ";
+					break;
+				}
+			}
+			std::cout << BDEFAULT << "\n";
+		}
+	}
 
 	int width = m_size.getX();
 	int height = m_size.getY();
@@ -118,20 +154,23 @@ void Buffer::present() const {
 			}
 
 			switch (newC) {
-			case '.':
+			case '.': // empty cell
 				out += BGREEN;
 				break;
-			case 'O':
+			case 'O': // player cell
 				out += BBLUE;
 				break;
-			case 'P':
+			case 'P': // obstacle cell
 				out += BRED;
 				break;
-			case 'X':
+			case 'X': // goal cell
 				out += BYELLOW;
 				break;
-			case 'Z':
+			case 'Z': // path cell
 				out += BMAGENTA;
+				break;
+			case 'W': // visited cell
+				out += BCYAN;
 				break;
 			default:
 				out += BDEFAULT;
@@ -139,6 +178,29 @@ void Buffer::present() const {
 			}
 
 			for (int i = 0; i < run; ++i) {
+				// check if a score exist for current position
+				// TEMPORARY
+				if (m_scores) {
+					int buffer_index = y * width + (start + i);
+					int score = (*m_scores)[buffer_index];
+					if (score > 0) {
+						if (score <= 99) {
+							if (score < 10) {
+								out += " " + std::to_string(score);
+							}
+							else {
+								out += std::to_string(score);
+							}
+						}
+						else {
+							out += "##";
+						}
+
+						continue;
+					}
+				}
+				// END TEMPORARY
+
 				out += "  ";
 			}
 		}
@@ -151,4 +213,13 @@ void Buffer::present() const {
 	std::cout.flush();
 
 	std::memcpy(const_cast<char*>(m_oldData), m_data, width * height * sizeof(char));
+}
+
+void Buffer::drawTextBellowBuffer(const std::string& _text) const
+{
+	int row = m_size.getY() + 1;
+	int col = 1;
+	std::cout << "\033[" << row << ";" << col << "H";
+	std::cout << _text;
+	std::cout.flush();
 }

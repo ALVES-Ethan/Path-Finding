@@ -2,6 +2,9 @@
 
 #include "utils/maths.h"
 
+#include <vector> // TEMPORARY
+#include <string> // TEMPORARY
+
 #define DEFAULT_BUFFER_WIDTH	16
 #define DEFAULT_BUFFER_HEIGHT	16
 
@@ -19,11 +22,20 @@ public:
 	int getIndex(const Vector2I& _position) const;
 	const Vector2I& getSize() const;
 
+	void setScoresContainer(std::vector<int>* _scores) { // TEMPORARY
+		m_scores = _scores;
+	}
+
 	void clear(char _char = '.');
-	void present() const;
+	void present(bool _flush = false) const;
+
+	void drawTextBellowBuffer(const std::string& _text) const;
 
 private:
 	Vector2I m_size;
+
+	std::vector<int>* m_scores; // TEMPORARY
+
 	char* m_data;
 	char* m_oldData;
 };
